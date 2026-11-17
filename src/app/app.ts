@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { EventSetup } from './event-setup/event-setup';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  imports: [EventSetup],
+  template: `<app-event-setup></app-event-setup>`,
+  styles: ``
 })
 export class App {
   protected readonly title = signal('assesment');
