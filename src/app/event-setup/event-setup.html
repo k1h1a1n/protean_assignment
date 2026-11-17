@@ -1,10 +1,54 @@
-<div class="event-setup">
-    <mat-tab-group>
-      <mat-tab label="schedule">
-        <app-schedule></app-schedule>
-      </mat-tab>
-      <mat-tab label="ticket tiers">
-        <app-ticket-tier></app-ticket-tier>
-      </mat-tab>
-    </mat-tab-group>
-</div>
+<main class="event-setup">
+    <header class="page-header">
+        <h1>Event setup</h1>
+        <p>Describe the event under General, then set its prices under Tickets.</p>
+    </header>
+    <form>
+        <mat-card appearance="outlined" class="form-card">
+            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="tab-label">
+                            <mat-icon>event</mat-icon>
+                            Event Schedule
+                        </span>
+                    </ng-template>
+                    <div class="tab-body">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Event Name</mat-label>
+                            <input matInput placeholder="Enter event name">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>Event Description</mat-label>
+                            <textarea matInput placeholder="Enter event description"></textarea>
+                        </mat-form-field>
+
+                        <fieldset class="group">
+                            <legend>Schedule</legend>
+                            <app-schedule></app-schedule>
+                        </fieldset>
+                    </div>
+                </mat-tab>
+                <mat-tab label="Ticket Tiers">
+                    <ng-template mat-tab-label>
+                        <span class="tab-label">
+                            <mat-icon>confirmation_number</mat-icon>
+                            Ticket Tiers
+                        </span>
+                    </ng-template>
+                    <div class="tab-body">
+                        <fieldset class="group">
+                            <legend>Ticket Tiers</legend>
+                            <app-ticket-tier></app-ticket-tier>
+                        </fieldset>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+            <footer class="form-actions">
+                <button mat-stroked-button type="button">Reset</button>
+                <button mat-flat-button type="submit">Save</button>
+            </footer>
+        </mat-card>
+    </form>
+</main>

@@ -1,1 +1,18 @@
-<p>ticket-tier works!</p>
+<div class="container">
+    <mat-form-field appearance="outline" class="name">
+        <mat-label>Tier name</mat-label>
+        <input #label matInput autocomplete="off" />
+        <!-- <mat-hint class="error">{{ shownIssues()[index].label }}</mat-hint> -->
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="price">
+        <mat-label>Price</mat-label>
+        <input #price matInput type="number" min="0" step="0.01" inputmode="decimal" />
+        <!-- <span matTextSuffix>{{ currency() }}</span> -->
+        <!-- <mat-hint class="error">{{ shownIssues()[index].price }}</mat-hint> -->
+    </mat-form-field>
+
+    <button mat-icon-button type="button">
+        <mat-icon>delete</mat-icon>
+    </button>
+</div>
