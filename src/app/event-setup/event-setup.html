@@ -3,7 +3,7 @@
         <h1>Event setup</h1>
         <p>Describe the event under General, then set its prices under Tickets.</p>
     </header>
-    <form>
+    <form novalidate (submit)="onSubmit($event)">
         <mat-card appearance="outlined" class="form-card">
             <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
                 <mat-tab>
@@ -16,12 +16,19 @@
                     <div class="tab-body">
                         <mat-form-field appearance="outline">
                             <mat-label>Event Name</mat-label>
-                            <input matInput placeholder="Enter event name">
+                            <input matInput placeholder="Enter event name" autocomplete="off"
+                                [formField]="eventForm.eventName">
+                            <mat-error>{{ eventForm.eventName().errors()[0]?.message }}</mat-error>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline">
                             <mat-label>Event Description</mat-label>
-                            <textarea matInput placeholder="Enter event description"></textarea>
+                            <textarea matInput placeholder="Enter event description"
+                                [formField]="eventForm.eventDescription"></textarea>
+                            <mat-hint align="end">
+                                {{ eventForm.eventDescription().value().length }} / {{ descriptionMaxLength }}
+                            </mat-hint>
+                            <mat-error>{{ eventForm.eventDescription().errors()[0]?.message }}</mat-error>
                         </mat-form-field>
 
                         <fieldset class="group">

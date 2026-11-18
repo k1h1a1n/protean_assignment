@@ -1,8 +1,8 @@
 .event-setup {
   max-width: 48rem;
   width: 100%;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
   box-sizing: border-box;
 }
 
@@ -22,7 +22,7 @@
 
 .tab-body {
   box-sizing: border-box;
-  min-height: 24rem;
+  min-height: 26rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
