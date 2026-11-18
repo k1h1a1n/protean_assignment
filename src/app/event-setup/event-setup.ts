@@ -7,7 +7,7 @@ import { MatCard } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { form, FormField, maxLength, required } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { EventSetupModel, validationSchema } from './event.model';
 import {DESCRIPTION_MAX_LENGTH} from './event.model';
 @Component({
@@ -22,17 +22,18 @@ export class EventSetup {
   eventFormModel: WritableSignal<EventSetupModel> = signal({
     eventName: '',
     eventDescription: '',
+    schedule: { date: null },
   });
 
   eventForm = form(this.eventFormModel , validationSchema);
 
   onSubmit(event: Event) {
     event.preventDefault();
+    console.log('Form submitted successfully:', this.eventFormModel() , this.eventForm().valid() , this.eventForm().errorSummary());
     if (this.eventForm().invalid()) {
       this.eventForm().markAsTouched();
       return;
     }
-    console.log('Form submitted successfully:', this.eventFormModel());
   }
 }
 

@@ -4,9 +4,11 @@ import {
     minLength,
     pattern,
     required,
+    requiredError,
     schema,
     validate,
 } from '@angular/forms/signals';
+import { ScheduleValue } from '../controls/schedule/schedule.model';
 
 
 const NAME_MAX_LENGTH = 80;
@@ -16,6 +18,7 @@ export const DESCRIPTION_MAX_LENGTH = 500;
 export interface EventSetupModel {
     eventName: string;
     eventDescription: string;
+    schedule: ScheduleValue
 }
 
 /** The validations for the event setup form. */
@@ -27,4 +30,7 @@ export const validationSchema = schema<EventSetupModel>((path) => {
     maxLength(path.eventDescription, DESCRIPTION_MAX_LENGTH, {
         message: `Use at most ${DESCRIPTION_MAX_LENGTH} characters.`,
     });
+    validate(path.schedule, ({ value }) =>
+        value().date ? undefined : requiredError({ message: 'Date is required' }));
+
 });
