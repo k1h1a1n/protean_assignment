@@ -11,6 +11,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { EventSetupModel, validationSchema } from './event.model';
 import {DESCRIPTION_MAX_LENGTH} from './event.model';
 import { EMPTY_SCHEDULE } from '../controls/schedule/schedule.model';
+import { EMPTY_TICKET_TIER } from '../controls/ticket-tier/ticket.model';
 @Component({
   imports: [MatTabsModule, Schedule, TicketTier, MatFormFieldModule, MatButtonModule, MatCard, MatInputModule, MatIconModule, FormField, MatError],
   selector: 'app-event-setup',
@@ -24,6 +25,7 @@ export class EventSetup {
     eventName: '',
     eventDescription: '',
     schedule: EMPTY_SCHEDULE,
+    ticketTiers: EMPTY_TICKET_TIER,
   });
 
   eventForm = form(this.eventFormModel , validationSchema);

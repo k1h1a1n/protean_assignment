@@ -8,6 +8,7 @@ import {
     validate,
 } from '@angular/forms/signals';
 import { ScheduleValue } from '../controls/schedule/schedule.model';
+import { TicketTierValue } from '../controls/ticket-tier/ticket.model';
 
 
 const NAME_MAX_LENGTH = 80;
@@ -18,6 +19,7 @@ export interface EventSetupModel {
     eventName: string;
     eventDescription: string;
     schedule: ScheduleValue
+    ticketTiers: TicketTierValue;
 }
 
 /** The validations for the event setup form. */
