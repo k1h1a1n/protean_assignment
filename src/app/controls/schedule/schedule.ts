@@ -24,7 +24,6 @@ import { MatInput } from '@angular/material/input';
 import { MatTimepickerInput, MatTimepickerModule } from '@angular/material/timepicker';
 import {
   EMPTY_SCHEDULE,
-  NO_ISSUES,
   ScheduleValue,
   dateToIsoDate,
   dateToTime,
@@ -32,6 +31,13 @@ import {
   scheduleIssues,
   timeToDate,
 } from './schedule.model';
+
+/** None of the three inputs has been left yet. */
+const NOTHING_LEFT: Record<keyof ScheduleValue, boolean> = {
+  date: false,
+  startTime: false,
+  durationMinutes: false,
+};
 
 @Component({
   imports: [MatFormFieldModule, MatDatepickerModule, MatInput, MatTimepickerModule],
@@ -47,8 +53,14 @@ import {
   ],
 })
 export class Schedule implements ControlValueAccessor, Validator {
-  /** Filled in by [formField]: true once the user leaves the field or presses Save. */
+  /**
+   * Filled in by [formField]: true once the user has left all three inputs (see onBlur),
+   * or presses Save. The form has only this one flag for the whole schedule.
+   */
   readonly touched = input(false);
+
+  /** Which inputs the user has left (blurred) at least once. */
+  private readonly left = signal(NOTHING_LEFT);
 
   protected readonly disabled = signal(false);
 
@@ -64,8 +76,20 @@ export class Schedule implements ControlValueAccessor, Validator {
   /** Every rule, checked against what the inputs hold: one message (or null) per part. */
   private readonly issues = computed(() => scheduleIssues(this.value()));
 
-  /** The messages to display: none until the field is touched, so we don't nag early. */
-  protected readonly shownIssues = computed(() => (this.touched() ? this.issues() : NO_ISSUES));
+  /**
+   * The messages to display. Each part shows its message once the user has left that input,
+   * or once the whole field is touched (Save). Before that: nothing, so we don't nag early.
+   */
+  protected readonly shownIssues = computed(() => {
+    const issues = this.issues();
+    const left = this.left();
+    const all = this.touched();
+    return {
+      date: all || left.date ? issues.date : null,
+      startTime: all || left.startTime ? issues.startTime : null,
+      durationMinutes: all || left.durationMinutes ? issues.durationMinutes : null,
+    };
+  });
 
   // One matcher per input: Material paints that field red while it has a message to show.
   protected readonly dateMatcher = this.matcherFor('date');
@@ -80,7 +104,7 @@ export class Schedule implements ControlValueAccessor, Validator {
 
   // Functions the form gives us through registerOnChange / registerOnTouched.
   private onChange: (value: ScheduleValue) => void = () => {};
-  protected onTouched: () => void = () => {};
+  private onTouched: () => void = () => {};
 
   constructor() {
     // Form -> inputs: each time the form writes a value, copy it into the three inputs.
@@ -108,6 +132,7 @@ export class Schedule implements ControlValueAccessor, Validator {
   /** Form -> component: the form has a new value for us to show. */
   writeValue(value: ScheduleValue | null): void {
     this.written.set(value ?? EMPTY_SCHEDULE);
+    this.left.set(NOTHING_LEFT); // a new value from the form (load, reset): start fresh
   }
 
   /** The form gives us the function to call when the user changes the value. */
@@ -130,7 +155,8 @@ export class Schedule implements ControlValueAccessor, Validator {
   validate(): ValidationErrors | null {
     const issues = this.issues();
     const hasProblem = Object.values(issues).some((message) => message !== null);
-    return hasProblem ? { schedule: issues } : null;
+    // console.log('Schedule.validate', this.value(), hasProblem, issues);
+    return hasProblem ? { required: issues } : null;
   }
 
   // ---- Inputs -> component -> form ----
@@ -155,6 +181,15 @@ export class Schedule implements ControlValueAccessor, Validator {
   /** From the number input: '' when empty. */
   protected setDuration(text: string): void {
     this.update({ ...this.value(), durationMinutes: text === '' ? null : Number(text) });
+  }
+
+  /** An input lost focus: from now on, show that input's message. */
+  protected onBlur(part: keyof ScheduleValue): void {
+    this.left.update((left) => ({ ...left, [part]: true }));
+
+    // Telling the form "touched" turns on every message (see shownIssues),
+    // so only do it once the user has left all three inputs.
+    if (Object.values(this.left()).every(Boolean)) this.onTouched();
   }
 
   /** Keep the new value and send it to the form. */

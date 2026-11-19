@@ -3,7 +3,7 @@
         <mat-label>Choose a date</mat-label>
         <input #dateInput matInput [matDatepicker]="datePicker" placeholder="MM/DD/YYYY"
             [disabled]="disabled()" [errorStateMatcher]="dateMatcher"
-            (dateChange)="setDate($event.value, dateInput.value)" (blur)="onTouched()">
+            (dateChange)="setDate($event.value, dateInput.value)" (blur)="onBlur('date')">
         <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
         <mat-datepicker #datePicker></mat-datepicker>
         <mat-error>{{ shownIssues().date }}</mat-error>
@@ -13,7 +13,7 @@
         <mat-label>Pick a time</mat-label>
         <input #timeInput matInput [matTimepicker]="timePicker" placeholder="HH:MM AM/PM"
             [disabled]="disabled()" [errorStateMatcher]="timeMatcher"
-            (valueChange)="setStartTime($event, timeInput.value)" (blur)="onTouched()">
+            (valueChange)="setStartTime($event, timeInput.value)" (blur)="onBlur('startTime')">
         <mat-timepicker-toggle matIconSuffix [for]="timePicker" />
         <mat-timepicker #timePicker />
         <mat-error>{{ shownIssues().startTime }}</mat-error>
@@ -23,7 +23,7 @@
         <mat-label>Duration</mat-label>
         <input #durationInput matInput type="number" min="1" step="1" inputmode="numeric"
             placeholder="In minutes" [disabled]="disabled()" [errorStateMatcher]="durationMatcher"
-            (input)="setDuration(durationInput.value)" (blur)="onTouched()">
+            (input)="setDuration(durationInput.value)" (blur)="onBlur('durationMinutes')">
         <mat-error>{{ shownIssues().durationMinutes }}</mat-error>
     </mat-form-field>
 </div>
