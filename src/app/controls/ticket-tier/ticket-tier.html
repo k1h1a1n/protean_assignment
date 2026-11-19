@@ -4,18 +4,19 @@
         @for(row of rows(); track row.id; let index = $index){
             <mat-form-field appearance="outline" class="name">
                 <mat-label>Tier name</mat-label>
-                <input #label matInput autocomplete="off" [disabled]="disabled()" 
-                    (input)="setTierName(row,label.value)"/>
-                    <mat-error>{{ shownIssues()[index].tierName }}</mat-error>
-        
+                <input #label matInput autocomplete="off" [disabled]="disabled()"
+                    [errorStateMatcher]="matchers()[index].tierName"
+                    (input)="setTierName(row, label.value)" (blur)="onBlur(row, 'tierName')" />
+                <mat-error>{{ shownIssues()[index].tierName }}</mat-error>
             </mat-form-field>
-        
-            <!-- <mat-form-field appearance="outline" class="price">
+
+            <mat-form-field appearance="outline" class="price">
                 <mat-label>Price</mat-label>
                 <input #price matInput type="number" min="0" step="0.01" inputmode="decimal" [disabled]="disabled()"
-                    [errorStateMatcher]="priceMatcher" (input)="setPrice(price.value)" (blur)="onBlur('price')" />
-                <mat-error>{{ shownIssues().price }}</mat-error>
-            </mat-form-field> -->
+                    [errorStateMatcher]="matchers()[index].price"
+                    (input)="setPrice(row, price.value)" (blur)="onBlur(row, 'price')" />
+                <mat-error>{{ shownIssues()[index].price }}</mat-error>
+            </mat-form-field>
             
                 <button mat-icon-button type="button">
                     <mat-icon (click)="remove(row)">delete</mat-icon>

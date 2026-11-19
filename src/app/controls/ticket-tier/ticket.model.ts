@@ -6,13 +6,15 @@ export interface TicketTierValue {
 export interface TicketTierRow {
   id: number;
   TicketTier: TicketTierValue;
+  /** Which of this row's inputs the user has left (blurred) at least once. */
+  left: Record<keyof TicketTierValue, boolean>;
 }
 export type TicketTierIssues = Record<keyof TicketTierValue, string | null>;
 
 export const EMPTY_TICKET_TIER: TicketTierValue = { tierName: null, price: null };
 export const NO_TICKET_TIER_ISSUES: TicketTierIssues = { tierName: null, price: null };
 
-/** None of the three inputs has been left yet. */
+/** Neither input of a row has been left yet. */
 export const NOTHING_LEFT: Record<keyof TicketTierValue, boolean> = {
   tierName: false,
   price: false,

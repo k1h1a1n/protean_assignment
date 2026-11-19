@@ -21,11 +21,12 @@ import { ErrorStateMatcher } from '@angular/material/core';
 })
 export class TicketTier implements ControlValueAccessor, Validator {
 
+  /**
+   * Filled in by [formField]: true once the user has left every input of every row (see onBlur),
+   * or presses Save. The form has only this one flag for all the tiers.
+   */
   readonly touched = input(false);
   protected readonly disabled = signal(false);
-
-  /** Which inputs the user has left (blurred) at least once. */
-  private readonly left = signal(NOTHING_LEFT);
 
   // Functions the form gives us through registerOnChange / registerOnTouched.
   private onChange: (value: TicketTierValue[]) => void = () => { };
@@ -48,9 +49,17 @@ export class TicketTier implements ControlValueAccessor, Validator {
     });
   }
 
-  // One matcher per input: Material paints that field red while it has a message to show.
-  // protected readonly tierNameMatcher = this.matcherFor('tierName');
-  // protected readonly priceMatcher = this.matcherFor('price');
+  // One matcher per input per row: Material paints that field red while it has a message to show.
+  // Each matcher looks up its row by index when asked, so the same objects stay valid while the
+  // row count is unchanged; that keeps the [errorStateMatcher] bindings stable while typing.
+  protected readonly matchers = computed(
+    () =>
+      this.rows().map((_, index) => ({
+        tierName: this.matcherFor(index, 'tierName'),
+        price: this.matcherFor(index, 'price'),
+      })),
+    { equal: (a, b) => a.length === b.length },
+  );
 
   // ---- ControlValueAccessor: how the form and this component share the value ----
 
@@ -95,21 +104,25 @@ export class TicketTier implements ControlValueAccessor, Validator {
     return { isErrorState: () => this.shownIssues()[index]?.[part] != null };
   }
 
-  // protected readonly shownIssues = computed(() => {
-  //   const issues = this.issues();
-  //   const left = this.left();
-  //   const all = this.touched();
-  //   return {
-  //     tierName: all || left.tierName ? issues.tierName : null,
-  //     price: all || left.price ? issues.price : null,
-  //   };
-  // });
+  /**
+   * The messages to display, one entry per row. Each input shows its message once the user has
+   * left that input, or once the whole field is touched (Save). Before that: nothing, so we don't
+   * nag early. Nothing is shown while the field is disabled.
+   */
+  protected readonly shownIssues = computed(() => {
+    const issues = this.issues();
+    if (this.disabled()) return issues.map(() => NO_TICKET_TIER_ISSUES);
 
-  protected readonly shownIssues = computed(() =>
-    this.touched() && !this.disabled()
-      ? this.issues()
-      : this.issues().map(() => NO_TICKET_TIER_ISSUES),
-  );
+    const all = this.touched();
+    const rows = this.rows();
+    return issues.map((rowIssues, index) => {
+      const left = rows[index].left;
+      return {
+        tierName: all || left.tierName ? rowIssues.tierName : null,
+        price: all || left.price ? rowIssues.price : null,
+      };
+    });
+  });
 
   /** From the number input: '' when empty. */
   protected setPrice(row: TicketTierRow, text: string): void {
@@ -120,17 +133,20 @@ export class TicketTier implements ControlValueAccessor, Validator {
     this.updateRow(row, { tierName });
   }
 
-  /** An input lost focus: from now on, show that input's message. */
-  protected onBlur(part: keyof TicketTierValue): void {
-    this.left.update((left) => ({ ...left, [part]: true }));
+  /** An input lost focus: from now on, show that input's message in that row. */
+  protected onBlur(row: TicketTierRow, part: keyof TicketTierValue): void {
+    this.rows.update((rows) =>
+      rows.map((r) => (r.id === row.id ? { ...r, left: { ...r.left, [part]: true } } : r)),
+    );
 
-    // Telling the form "touched" turns on every message (see shownIssues),
-    // so only do it once the user has left all three inputs.
-    if (Object.values(this.left()).every(Boolean)) this.onTouched();
+    // Telling the form "touched" turns on every message in every row (see shownIssues),
+    // so only do it once the user has left every input of every row.
+    if (this.rows().every((r) => Object.values(r.left).every(Boolean))) this.onTouched();
   }
 
+  /** A new row starts with nothing left, so a value from the form (load, reset) starts fresh. */
   private newRow(tier: TicketTierValue): TicketTierRow {
-    return { id: this.nextId++, TicketTier: tier };
+    return { id: this.nextId++, TicketTier: tier, left: NOTHING_LEFT };
   }
 
   protected addRow(): void {
@@ -149,6 +165,5 @@ export class TicketTier implements ControlValueAccessor, Validator {
   protected add(): void {
     this.rows.update((rows) => [...rows, this.newRow({ tierName: null, price: null })]);
     this.onChange(this.value());
-
   }
 }
