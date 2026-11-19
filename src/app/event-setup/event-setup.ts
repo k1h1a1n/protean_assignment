@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { form, FormField } from '@angular/forms/signals';
 import { EventSetupModel, validationSchema } from './event.model';
 import {DESCRIPTION_MAX_LENGTH} from './event.model';
+import { EMPTY_SCHEDULE } from '../controls/schedule/schedule.model';
 @Component({
   imports: [MatTabsModule, Schedule, TicketTier, MatFormFieldModule, MatButtonModule, MatCard, MatInputModule, MatIconModule, FormField, MatError],
   selector: 'app-event-setup',
@@ -22,7 +23,7 @@ export class EventSetup {
   eventFormModel: WritableSignal<EventSetupModel> = signal({
     eventName: '',
     eventDescription: '',
-    schedule: { date: null },
+    schedule: EMPTY_SCHEDULE,
   });
 
   eventForm = form(this.eventFormModel , validationSchema);

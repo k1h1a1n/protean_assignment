@@ -1,24 +1,29 @@
 <div class="container">
-
     <mat-form-field appearance="outline" class="date">
         <mat-label>Choose a date</mat-label>
-        <input matInput [matDatepicker]="datePicker" placeholder="MM/DD/YYYY" [disabled]="disabled()"
-            (dateChange)="onDateChange($event.value)" (blur)="onTouched()">
-        <!-- <mat-hint class="error">{{ errorMessage() }}</mat-hint> -->
-         <mat-hint class="error">{{ shownIssues() }}</mat-hint>
+        <input #dateInput matInput [matDatepicker]="datePicker" placeholder="MM/DD/YYYY"
+            [disabled]="disabled()" [errorStateMatcher]="dateMatcher"
+            (dateChange)="setDate($event.value, dateInput.value)" (blur)="onTouched()">
         <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
         <mat-datepicker #datePicker></mat-datepicker>
+        <mat-error>{{ shownIssues().date }}</mat-error>
     </mat-form-field>
 
-    <!-- <mat-form-field appearance="outline" class="time">
+    <mat-form-field appearance="outline" class="time">
         <mat-label>Pick a time</mat-label>
-        <input matInput [matTimepicker]="timePicker" placeholder="HH:MM AM/PM">
+        <input #timeInput matInput [matTimepicker]="timePicker" placeholder="HH:MM AM/PM"
+            [disabled]="disabled()" [errorStateMatcher]="timeMatcher"
+            (valueChange)="setStartTime($event, timeInput.value)" (blur)="onTouched()">
         <mat-timepicker-toggle matIconSuffix [for]="timePicker" />
         <mat-timepicker #timePicker />
+        <mat-error>{{ shownIssues().startTime }}</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="duration">
         <mat-label>Duration</mat-label>
-        <input matInput type="number" min="0" inputmode="numeric" placeholder="In minutes">
-    </mat-form-field> -->
+        <input #durationInput matInput type="number" min="1" step="1" inputmode="numeric"
+            placeholder="In minutes" [disabled]="disabled()" [errorStateMatcher]="durationMatcher"
+            (input)="setDuration(durationInput.value)" (blur)="onTouched()">
+        <mat-error>{{ shownIssues().durationMinutes }}</mat-error>
+    </mat-form-field>
 </div>

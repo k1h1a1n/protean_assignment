@@ -4,7 +4,6 @@ import {
     minLength,
     pattern,
     required,
-    requiredError,
     schema,
     validate,
 } from '@angular/forms/signals';
@@ -30,7 +29,4 @@ export const validationSchema = schema<EventSetupModel>((path) => {
     maxLength(path.eventDescription, DESCRIPTION_MAX_LENGTH, {
         message: `Use at most ${DESCRIPTION_MAX_LENGTH} characters.`,
     });
-    validate(path.schedule, ({ value }) =>
-        value().date ? undefined : requiredError({ message: 'Date is required' }));
-
 });
