@@ -59,3 +59,22 @@
   align-items: center;
   gap: 0.5rem;
 }
+// The loader shown over the card while saving.
+.form-card {
+  position: relative;
+}
+
+.saving-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--mat-sys-surface) 70%, transparent);
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}

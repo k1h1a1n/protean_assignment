@@ -97,8 +97,9 @@ export class TicketTier implements ControlValueAccessor, Validator {
   // ---- Validator: the parent only learns "valid" or "invalid" from here ----
   validate(): ValidationErrors | null {
     const issues = this.issues();
-    if (Object.values(issues).every((issue) => issue === null)) return null;
-    return { ticketTier: issues };
+    // One { tierName, price } entry per row: valid only when no row has any message.
+    const hasProblem = issues.some((row) => row.tierName !== null || row.price !== null);
+    return hasProblem ? { ticketTier: issues } : null;
   }
 
   /** A matcher that shows `part` in red while it has a message to show. */

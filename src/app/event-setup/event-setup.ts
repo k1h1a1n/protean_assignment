@@ -7,13 +7,18 @@ import { MatCard } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { form, FormField } from '@angular/forms/signals';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { apply, disabled, form, FormField } from '@angular/forms/signals';
 import { EMPTY_EVENT, EventSetupModel, INITIAL_EVENT, validationSchema } from './event.model';
 import {DESCRIPTION_MAX_LENGTH} from './event.model';
 import { Confirmation } from '../shared/confirm-dialog/confirm-dialog';
 
+/** How long the pretend save takes, until there's a real server to send the event to. */
+const SAVE_DELAY_MS = 1500;
+
 @Component({
-  imports: [MatTabsModule, Schedule, TicketTier, MatFormFieldModule, MatButtonModule, MatCard, MatInputModule, MatIconModule, FormField, MatError],
+  imports: [MatTabsModule, Schedule, TicketTier, MatFormFieldModule, MatButtonModule, MatCard, MatInputModule, MatIconModule, MatProgressSpinner, FormField, MatError],
   selector: 'app-event-setup',
   styleUrl: './event-setup.scss',
   templateUrl: './event-setup.html',
@@ -23,13 +28,25 @@ export class EventSetup {
   protected readonly descriptionMaxLength = DESCRIPTION_MAX_LENGTH;
   eventFormModel: WritableSignal<EventSetupModel> = signal(INITIAL_EVENT);
 
-  eventForm = form(this.eventFormModel , validationSchema);
+  /** True while the event is being saved: the whole form is disabled and a loader covers it. */
+  protected readonly saving = signal(false);
+
+  eventForm = form(this.eventFormModel, (path) => {
+    apply(path, validationSchema);
+    // Disabling the root disables every field inside it.
+    disabled(path, { when: () => this.saving() });
+  });
 
   private readonly confirmation = inject(Confirmation);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Save: show every message if something is wrong, otherwise ask before saving. */
+  /**
+   * Save: show every message if something is wrong, otherwise ask, then save with the form
+   * disabled under a loader. Once saved, the form is cleared for the next event.
+   */
   async onSubmit(event: Event) {
     event.preventDefault();
+    if (this.saving()) return;
     if (this.eventForm().invalid()) {
       this.eventForm().markAsTouched();
       return;
@@ -41,7 +58,13 @@ export class EventSetup {
       confirmLabel: 'Save',
     });
     if (!confirmed) return;
+
+    this.saving.set(true);
     console.log('Form submitted successfully:', this.eventFormModel());
+    await new Promise((resolve) => setTimeout(resolve, SAVE_DELAY_MS)); // stands in for the request
+    this.eventForm().reset(EMPTY_EVENT);
+    this.saving.set(false);
+    this.snackBar.open('Saved successfully', 'OK', { duration: 3000 });
   }
 
   /**
