@@ -148,5 +148,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
 
   protected add(): void {
     this.rows.update((rows) => [...rows, this.newRow({ tierName: null, price: null })]);
+    this.onChange(this.value());
+
   }
 }

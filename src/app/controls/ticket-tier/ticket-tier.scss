@@ -5,6 +5,20 @@
   align-items: start;
 }
 
+// Pin each control to its own column so every tier starts on a new line,
+// even while a field (like price) is missing from the row.
+.name {
+  grid-column: 1;
+}
+
+.price {
+  grid-column: 2;
+}
+
+.container > button {
+  grid-column: 3;
+}
+
 .add-button {
   margin-top: 0.8rem;
 }
