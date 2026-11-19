@@ -7,6 +7,7 @@ const NAME_MAX_LENGTH = 80;
 export const DESCRIPTION_MAX_LENGTH = 500;
 
 
+/** Everything the event setup form edits. */
 export interface EventSetupModel {
     eventName: string;
     eventDescription: string;

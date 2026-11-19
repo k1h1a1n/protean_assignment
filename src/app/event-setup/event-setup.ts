@@ -25,6 +25,8 @@ const SAVE_DELAY_MS = 1500;
 
 export class EventSetup {
   protected readonly descriptionMaxLength = DESCRIPTION_MAX_LENGTH;
+
+  /** The event being edited: the form reads and writes this signal. */
   readonly eventFormModel = signal(INITIAL_EVENT);
 
   /** True while the event is being saved: the whole form is disabled and a loader covers it. */
@@ -88,6 +90,7 @@ export class EventSetup {
     console.log('Form submitted successfully:', this.eventFormModel());
     await new Promise((resolve) => setTimeout(resolve, SAVE_DELAY_MS)); // stands in for the request
     this.eventForm().reset(EMPTY_EVENT);
+    this.selectedTab.set(0); // start the next event from the first tab
     this.saving.set(false);
     this.snackBar.open('Saved successfully', 'OK', { duration: 3000 });
   }

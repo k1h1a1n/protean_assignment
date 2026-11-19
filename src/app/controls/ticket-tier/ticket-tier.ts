@@ -33,17 +33,24 @@ export class TicketTier implements ControlValueAccessor, Validator {
   private onChange: (value: TicketTierValue[]) => void = () => { };
   private onTouched: () => void = () => { };
 
+  /** The tiers on screen, in order (see TicketTierRow). */
   protected readonly rows = signal<TicketTierRow[]>([]);
   private nextId = 0;
+
+  /** What the form gets: just the tiers' values, without the on-screen extras. */
   private readonly value = computed(() => this.rows().map(row => row.TicketTier))
+
+  /** Every rule, checked against what the inputs hold: one { tierName, price } entry per row. */
   private readonly issues = computed(() => ticketTierIssues(this.value()));
 
   private readonly matInputs = viewChildren(MatInput);
   private readonly confirmation = inject(Confirmation);
 
   constructor() {
+    // Material only re-checks a matcher by itself when the <input> has its own form control.
+    // Ours don't, so ask every input to re-check whenever the shown messages change.
     effect(() => {
-      this.shownIssues(); // ensure shownIssues is computed when issues or left changes
+      this.shownIssues();
       for (const matInput of this.matInputs()) matInput.updateErrorState();
     });
   }
@@ -98,7 +105,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
     return hasProblem ? { ticketTier: issues } : null;
   }
 
-  /** A matcher that shows `part` in red while it has a message to show. */
+  /** A matcher that shows row `index`'s `part` in red while it has a message (`?.`: the row may be gone). */
   private matcherFor(index: number, part: keyof TicketTierValue): ErrorStateMatcher {
     return { isErrorState: () => this.shownIssues()[index]?.[part] != null };
   }
@@ -173,6 +180,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
     if (confirmed) this.removeRow(row);
   }
 
+  /** "Add ticket tier" button: a blank row at the end. */
   protected add(): void {
     this.rows.update((rows) => [...rows, this.newRow(EMPTY_TICKET_TIER)]);
     this.onChange(this.value());
