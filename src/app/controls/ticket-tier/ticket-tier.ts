@@ -146,7 +146,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
 
   /** A new row starts with nothing left, so a value from the form (load, reset) starts fresh. */
   private newRow(tier: TicketTierValue): TicketTierRow {
-    return { id: this.nextId++, TicketTier: tier, left: NOTHING_LEFT };
+    return { id: this.nextId++, TicketTier: tier, initial: tier, left: NOTHING_LEFT };
   }
 
   protected addRow(): void {

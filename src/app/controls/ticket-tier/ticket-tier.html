@@ -5,6 +5,7 @@
             <mat-form-field appearance="outline" class="name">
                 <mat-label>Tier name</mat-label>
                 <input #label matInput autocomplete="off" [disabled]="disabled()"
+                    [value]="row.initial.tierName ?? ''"
                     [errorStateMatcher]="matchers()[index].tierName"
                     (input)="setTierName(row, label.value)" (blur)="onBlur(row, 'tierName')" />
                 <mat-error>{{ shownIssues()[index].tierName }}</mat-error>
@@ -13,6 +14,7 @@
             <mat-form-field appearance="outline" class="price">
                 <mat-label>Price</mat-label>
                 <input #price matInput type="number" min="0" step="0.01" inputmode="decimal" [disabled]="disabled()"
+                    [value]="row.initial.price ?? ''"
                     [errorStateMatcher]="matchers()[index].price"
                     (input)="setPrice(row, price.value)" (blur)="onBlur(row, 'price')" />
                 <mat-error>{{ shownIssues()[index].price }}</mat-error>
