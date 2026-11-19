@@ -24,6 +24,7 @@ import { MatInput } from '@angular/material/input';
 import { MatTimepickerInput, MatTimepickerModule } from '@angular/material/timepicker';
 import {
   EMPTY_SCHEDULE,
+  NOTHING_LEFT,
   ScheduleValue,
   dateToIsoDate,
   dateToTime,
@@ -31,13 +32,6 @@ import {
   scheduleIssues,
   timeToDate,
 } from './schedule.model';
-
-/** None of the three inputs has been left yet. */
-const NOTHING_LEFT: Record<keyof ScheduleValue, boolean> = {
-  date: false,
-  startTime: false,
-  durationMinutes: false,
-};
 
 @Component({
   imports: [MatFormFieldModule, MatDatepickerModule, MatInput, MatTimepickerModule],

@@ -17,6 +17,13 @@ export type ScheduleIssues = Record<keyof ScheduleValue, string | null>;
 
 export const NO_ISSUES: ScheduleIssues = { date: null, startTime: null, durationMinutes: null };
 
+/** None of the three inputs has been left yet. */
+export const NOTHING_LEFT: Record<keyof ScheduleValue, boolean> = {
+  date: false,
+  startTime: false,
+  durationMinutes: false,
+};
+
 export function scheduleIssues(value: ScheduleValue): ScheduleIssues {
     return {
         date: dateIssue(value.date),
