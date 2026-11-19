@@ -19,7 +19,7 @@ export interface EventSetupModel {
     eventName: string;
     eventDescription: string;
     schedule: ScheduleValue
-    ticketTiers: TicketTierValue;
+    ticketTiers: TicketTierValue[];
 }
 
 /** The validations for the event setup form. */

@@ -2,20 +2,26 @@ export interface TicketTierValue {
   tierName: string | null;
   price: number | null;
 }
+
+export interface TicketTierRow {
+  id: number;
+  TicketTier: TicketTierValue;
+}
 export type TicketTierIssues = Record<keyof TicketTierValue, string | null>;
 
 export const EMPTY_TICKET_TIER: TicketTierValue = { tierName: null, price: null };
+export const NO_TICKET_TIER_ISSUES: TicketTierIssues = { tierName: null, price: null };
+
 /** None of the three inputs has been left yet. */
 export const NOTHING_LEFT: Record<keyof TicketTierValue, boolean> = {
   tierName: false,
   price: false,
 };
 
-export function ticketTierIssues(value: TicketTierValue): TicketTierIssues {
-  return {
-    tierName: nameIssue(value.tierName),
-    price: priceIssue(value.price),
-  };
+export function ticketTierIssues(value: TicketTierValue[] | null): TicketTierIssues[] {
+  return (value ?? []).map((r) => {
+    return {tierName : nameIssue(r.tierName) , price : priceIssue(r.price)}
+  })
 }
 
 function nameIssue(name: string | null): string | null {

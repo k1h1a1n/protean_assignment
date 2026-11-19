@@ -25,7 +25,7 @@ export class EventSetup {
     eventName: '',
     eventDescription: '',
     schedule: EMPTY_SCHEDULE,
-    ticketTiers: EMPTY_TICKET_TIER,
+    ticketTiers: [],
   });
 
   eventForm = form(this.eventFormModel , validationSchema);

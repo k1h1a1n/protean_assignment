@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInput, MatInputModule } from '@angular/material/input';
-import { EMPTY_TICKET_TIER, NOTHING_LEFT, ticketTierIssues, TicketTierValue } from './ticket.model';
+import { EMPTY_TICKET_TIER, NO_TICKET_TIER_ISSUES, NOTHING_LEFT, ticketTierIssues, TicketTierRow, TicketTierValue } from './ticket.model';
 import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
@@ -28,11 +28,14 @@ export class TicketTier implements ControlValueAccessor, Validator {
   private readonly left = signal(NOTHING_LEFT);
 
   // Functions the form gives us through registerOnChange / registerOnTouched.
-  private onChange: (value: TicketTierValue) => void = () => { };
+  private onChange: (value: TicketTierValue[]) => void = () => { };
   private onTouched: () => void = () => { };
 
-  private readonly written = signal<TicketTierValue>(EMPTY_TICKET_TIER, { equal: () => false });
-  private readonly value = linkedSignal(() => this.written());
+  // private readonly written = signal<TicketTierValue>(EMPTY_TICKET_TIER, { equal: () => false });
+  // private readonly value = linkedSignal(() => this.written());
+  protected readonly rows = signal<TicketTierRow[]>([]);
+  private nextId = 0;
+  private readonly value = computed(() => this.rows().map(row => row.TicketTier))
   private readonly issues = computed(() => ticketTierIssues(this.value()));
 
   private readonly matInputs = viewChildren(MatInput);
@@ -46,18 +49,18 @@ export class TicketTier implements ControlValueAccessor, Validator {
   }
 
   // One matcher per input: Material paints that field red while it has a message to show.
-  protected readonly tierNameMatcher = this.matcherFor('tierName');
-  protected readonly priceMatcher = this.matcherFor('price');
+  // protected readonly tierNameMatcher = this.matcherFor('tierName');
+  // protected readonly priceMatcher = this.matcherFor('price');
 
   // ---- ControlValueAccessor: how the form and this component share the value ----
 
   /** Form -> component: the form has a new value for us to show. */
-  writeValue(value: TicketTierValue | null): void {
-    this.written.set(value ?? EMPTY_TICKET_TIER);
+  writeValue(value: TicketTierValue[] | null): void {
+    this.rows.set((value ?? []).map((tier) => this.newRow(tier)));
   }
 
   /** The form gives us the function to call when the user changes the value. */
-  registerOnChange(fn: (value: TicketTierValue) => void): void {
+  registerOnChange(fn: (value: TicketTierValue[]) => void): void {
     this.onChange = fn;
   }
 
@@ -72,9 +75,11 @@ export class TicketTier implements ControlValueAccessor, Validator {
   }
 
   /** Keep the new value and send it to the form. */
-  private update(value: TicketTierValue): void {
-    this.value.set(value);
-    this.onChange(value);
+  private updateRow(row: TicketTierRow, changes: Partial<TicketTierValue>): void {
+    this.rows.update((rows) =>
+      rows.map((r) => (r.id === row.id ? { ...r, TicketTier: { ...r.TicketTier, ...changes } } : r)),
+    );
+    this.onChange(this.value());
   }
 
 
@@ -86,27 +91,33 @@ export class TicketTier implements ControlValueAccessor, Validator {
   }
 
   /** A matcher that shows `part` in red while it has a message to show. */
-  private matcherFor(part: keyof TicketTierValue): ErrorStateMatcher {
-    return { isErrorState: () => this.shownIssues()[part] !== null };
+  private matcherFor(index: number, part: keyof TicketTierValue): ErrorStateMatcher {
+    return { isErrorState: () => this.shownIssues()[index]?.[part] != null };
   }
 
-  protected readonly shownIssues = computed(() => {
-    const issues = this.issues();
-    const left = this.left();
-    const all = this.touched();
-    return {
-      tierName: all || left.tierName ? issues.tierName : null,
-      price: all || left.price ? issues.price : null,
-    };
-  });
+  // protected readonly shownIssues = computed(() => {
+  //   const issues = this.issues();
+  //   const left = this.left();
+  //   const all = this.touched();
+  //   return {
+  //     tierName: all || left.tierName ? issues.tierName : null,
+  //     price: all || left.price ? issues.price : null,
+  //   };
+  // });
+
+  protected readonly shownIssues = computed(() =>
+    this.touched() && !this.disabled()
+      ? this.issues()
+      : this.issues().map(() => NO_TICKET_TIER_ISSUES),
+  );
 
   /** From the number input: '' when empty. */
-  protected setPrice(text: string): void {
-    this.update({ ...this.value(), price: text === '' ? null : Number(text) });
+  protected setPrice(row: TicketTierRow, text: string): void {
+    this.updateRow(row, { price: text === '' ? null : Number(text) });
   }
 
-  protected setTierName(text: string): void {
-    this.update({ ...this.value(), tierName: text.trim() || null });
+  protected setTierName(row: TicketTierRow, tierName: string): void {
+    this.updateRow(row, { tierName });
   }
 
   /** An input lost focus: from now on, show that input's message. */
@@ -116,5 +127,26 @@ export class TicketTier implements ControlValueAccessor, Validator {
     // Telling the form "touched" turns on every message (see shownIssues),
     // so only do it once the user has left all three inputs.
     if (Object.values(this.left()).every(Boolean)) this.onTouched();
+  }
+
+  private newRow(tier: TicketTierValue): TicketTierRow {
+    return { id: this.nextId++, TicketTier: tier };
+  }
+
+  protected addRow(): void {
+    // this.rows.update((rows) => [...rows, this.newRow()]);
+  }
+
+  private removeRow(row: TicketTierRow): void {
+    this.rows.update((rows) => rows.filter((r) => r.id !== row.id));
+    this.onChange(this.value());
+  }
+
+  protected remove(row: TicketTierRow): void {
+    this.removeRow(row)
+  }
+
+  protected add(): void {
+    this.rows.update((rows) => [...rows, this.newRow({ tierName: null, price: null })]);
   }
 }
