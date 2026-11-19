@@ -59,6 +59,14 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+// The alert icon on a tab that has errors: red, a little smaller than the tab's own icon.
+.tab-error {
+  color: var(--mat-sys-error);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
 // The loader shown over the card while saving.
 .form-card {
   position: relative;

@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import { Schedule } from '../controls/schedule/schedule';
 import { TicketTier } from '../controls/ticket-tier/ticket-tier';
 import { MatError, MatFormFieldModule } from '@angular/material/form-field';
@@ -31,11 +31,25 @@ export class EventSetup {
   /** True while the event is being saved: the whole form is disabled and a loader covers it. */
   protected readonly saving = signal(false);
 
+  /** The open tab: 0 = Event Schedule, 1 = Ticket Tiers. */
+  protected readonly selectedTab = signal(0);
+
   eventForm = form(this.eventFormModel, (path) => {
     apply(path, validationSchema);
     // Disabling the root disables every field inside it.
     disabled(path, { when: () => this.saving() });
   });
+
+  // An alert icon shows on a tab while one of its fields has an error the user can see:
+  // the field is invalid and touched (left by the user, or Save was pressed).
+  protected readonly scheduleTabHasError = computed(() =>
+    [this.eventForm.eventName, this.eventForm.eventDescription, this.eventForm.schedule].some(
+      (field) => field().invalid() && field().touched(),
+    ),
+  );
+  protected readonly ticketsTabHasError = computed(
+    () => this.eventForm.ticketTiers().invalid() && this.eventForm.ticketTiers().touched(),
+  );
 
   private readonly confirmation = inject(Confirmation);
   private readonly snackBar = inject(MatSnackBar);
@@ -44,11 +58,23 @@ export class EventSetup {
    * Save: show every message if something is wrong, otherwise ask, then save with the form
    * disabled under a loader. Once saved, the form is cleared for the next event.
    */
+  /** Opens the first tab that has a field with an error, so the user sees what to fix. */
+  private openFirstInvalidTab(): void {
+    const scheduleTabInvalid =
+      this.eventForm.eventName().invalid() ||
+      this.eventForm.eventDescription().invalid() ||
+      this.eventForm.schedule().invalid();
+
+    // The form is invalid, so if the first tab is fine, the problem is in Ticket Tiers.
+    this.selectedTab.set(scheduleTabInvalid ? 0 : 1);
+  }
+
   async onSubmit(event: Event) {
     event.preventDefault();
     if (this.saving()) return;
     if (this.eventForm().invalid()) {
       this.eventForm().markAsTouched();
+      this.openFirstInvalidTab();
       return;
     }
 
