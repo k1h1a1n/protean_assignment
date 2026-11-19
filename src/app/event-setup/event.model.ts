@@ -1,14 +1,6 @@
-import {
-    disabled,
-    maxLength,
-    minLength,
-    pattern,
-    required,
-    schema,
-    validate,
-} from '@angular/forms/signals';
+import { maxLength, required, schema } from '@angular/forms/signals';
 import { DEFAULT_SCHEDULE, EMPTY_SCHEDULE, ScheduleValue } from '../controls/schedule/schedule.model';
-import { DEFAULT_TICKET_TIERS, TicketTierValue } from '../controls/ticket-tier/ticket.model';
+import { DEFAULT_TICKET_TIERS, EMPTY_TICKET_TIER, TicketTierValue } from '../controls/ticket-tier/ticket.model';
 
 
 const NAME_MAX_LENGTH = 80;
@@ -36,7 +28,7 @@ export const EMPTY_EVENT: EventSetupModel = {
     eventDescription: '',
     schedule: EMPTY_SCHEDULE,
     // One blank row to fill in.
-    ticketTiers: [{ tierName: null, price: null }],
+    ticketTiers: [EMPTY_TICKET_TIER],
 };
 
 /** The validations for the event setup form. */

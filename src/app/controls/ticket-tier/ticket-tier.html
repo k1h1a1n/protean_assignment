@@ -1,34 +1,31 @@
 <div class="container">
+    @for (row of rows(); track row.id; let index = $index) {
+        <mat-form-field appearance="outline" class="name">
+            <mat-label>Tier name</mat-label>
+            <input #label matInput autocomplete="off" [disabled]="disabled()"
+                [value]="row.initial.tierName ?? ''"
+                [errorStateMatcher]="matchers()[index].tierName"
+                (input)="setTierName(row, label.value)" (blur)="onBlur(row, 'tierName')" />
+            <mat-error>{{ shownIssues()[index].tierName }}</mat-error>
+        </mat-form-field>
 
-    @if(rows().length > 0){
-        @for(row of rows(); track row.id; let index = $index){
-            <mat-form-field appearance="outline" class="name">
-                <mat-label>Tier name</mat-label>
-                <input #label matInput autocomplete="off" [disabled]="disabled()"
-                    [value]="row.initial.tierName ?? ''"
-                    [errorStateMatcher]="matchers()[index].tierName"
-                    (input)="setTierName(row, label.value)" (blur)="onBlur(row, 'tierName')" />
-                <mat-error>{{ shownIssues()[index].tierName }}</mat-error>
-            </mat-form-field>
+        <mat-form-field appearance="outline" class="price">
+            <mat-label>Price</mat-label>
+            <input #price matInput type="number" min="0" step="0.01" inputmode="decimal" [disabled]="disabled()"
+                [value]="row.initial.price ?? ''"
+                [errorStateMatcher]="matchers()[index].price"
+                (input)="setPrice(row, price.value)" (blur)="onBlur(row, 'price')" />
+            <mat-error>{{ shownIssues()[index].price }}</mat-error>
+        </mat-form-field>
 
-            <mat-form-field appearance="outline" class="price">
-                <mat-label>Price</mat-label>
-                <input #price matInput type="number" min="0" step="0.01" inputmode="decimal" [disabled]="disabled()"
-                    [value]="row.initial.price ?? ''"
-                    [errorStateMatcher]="matchers()[index].price"
-                    (input)="setPrice(row, price.value)" (blur)="onBlur(row, 'price')" />
-                <mat-error>{{ shownIssues()[index].price }}</mat-error>
-            </mat-form-field>
-            
-                <button mat-icon-button type="button" aria-label="Delete ticket tier" [disabled]="disabled()"
-                    (click)="remove(row)">
-                    <mat-icon>delete</mat-icon>
-                </button>
-        }
+        <button mat-icon-button type="button" aria-label="Delete ticket tier" [disabled]="disabled()"
+            (click)="remove(row)">
+            <mat-icon>delete</mat-icon>
+        </button>
     }
 </div>
 
-<button mat-stroked-button type="button" class="add add-button" (click)="add()">
+<button mat-stroked-button type="button" class="add-button" (click)="add()">
     <mat-icon>add</mat-icon>
     Add ticket tier
 </button>

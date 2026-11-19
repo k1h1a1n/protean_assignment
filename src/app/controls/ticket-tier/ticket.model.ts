@@ -31,10 +31,8 @@ export const NOTHING_LEFT: Record<keyof TicketTierValue, boolean> = {
   price: false,
 };
 
-export function ticketTierIssues(value: TicketTierValue[] | null): TicketTierIssues[] {
-  return (value ?? []).map((r) => {
-    return {tierName : nameIssue(r.tierName) , price : priceIssue(r.price)}
-  })
+export function ticketTierIssues(value: TicketTierValue[]): TicketTierIssues[] {
+  return value.map((r) => ({ tierName: nameIssue(r.tierName), price: priceIssue(r.price) }));
 }
 
 function nameIssue(name: string | null): string | null {
@@ -43,8 +41,8 @@ function nameIssue(name: string | null): string | null {
 }
 
 function priceIssue(price: number | null): string | null {
-  if (price === null || price === undefined) return 'Price is required';
+  if (price == null) return 'Price is required'; // null or undefined
   if (typeof price !== 'number' || isNaN(price)) return 'Price must be a number';
   if (price < 0) return 'Price cannot be negative';
   return null;
-  };
+}

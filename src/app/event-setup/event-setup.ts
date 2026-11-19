@@ -1,7 +1,6 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Schedule } from '../controls/schedule/schedule';
 import { TicketTier } from '../controls/ticket-tier/ticket-tier';
-import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -10,15 +9,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { apply, disabled, form, FormField } from '@angular/forms/signals';
-import { EMPTY_EVENT, EventSetupModel, INITIAL_EVENT, validationSchema } from './event.model';
-import {DESCRIPTION_MAX_LENGTH} from './event.model';
+import { DESCRIPTION_MAX_LENGTH, EMPTY_EVENT, INITIAL_EVENT, validationSchema } from './event.model';
 import { Confirmation } from '../shared/confirm-dialog/confirm-dialog';
 
 /** How long the pretend save takes, until there's a real server to send the event to. */
 const SAVE_DELAY_MS = 1500;
 
 @Component({
-  imports: [MatTabsModule, Schedule, TicketTier, MatFormFieldModule, MatButtonModule, MatCard, MatInputModule, MatIconModule, MatProgressSpinner, FormField, MatError],
+  // MatInputModule also brings mat-form-field, mat-label, mat-hint and mat-error.
+  imports: [MatTabsModule, Schedule, TicketTier, MatButtonModule, MatCard, MatInputModule, MatIconModule, MatProgressSpinner, FormField],
   selector: 'app-event-setup',
   styleUrl: './event-setup.scss',
   templateUrl: './event-setup.html',
@@ -26,7 +25,7 @@ const SAVE_DELAY_MS = 1500;
 
 export class EventSetup {
   protected readonly descriptionMaxLength = DESCRIPTION_MAX_LENGTH;
-  eventFormModel: WritableSignal<EventSetupModel> = signal(INITIAL_EVENT);
+  readonly eventFormModel = signal(INITIAL_EVENT);
 
   /** True while the event is being saved: the whole form is disabled and a loader covers it. */
   protected readonly saving = signal(false);
@@ -54,10 +53,6 @@ export class EventSetup {
   private readonly confirmation = inject(Confirmation);
   private readonly snackBar = inject(MatSnackBar);
 
-  /**
-   * Save: show every message if something is wrong, otherwise ask, then save with the form
-   * disabled under a loader. Once saved, the form is cleared for the next event.
-   */
   /** Opens the first tab that has a field with an error, so the user sees what to fix. */
   private openFirstInvalidTab(): void {
     const scheduleTabInvalid =
@@ -69,6 +64,10 @@ export class EventSetup {
     this.selectedTab.set(scheduleTabInvalid ? 0 : 1);
   }
 
+  /**
+   * Save: show every message if something is wrong, otherwise ask, then save with the form
+   * disabled under a loader. Once saved, the form is cleared for the next event.
+   */
   async onSubmit(event: Event) {
     event.preventDefault();
     if (this.saving()) return;

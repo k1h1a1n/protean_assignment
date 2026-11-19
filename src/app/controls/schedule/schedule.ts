@@ -149,7 +149,6 @@ export class Schedule implements ControlValueAccessor, Validator {
   validate(): ValidationErrors | null {
     const issues = this.issues();
     const hasProblem = Object.values(issues).some((message) => message !== null);
-    // console.log('Schedule.validate', this.value(), hasProblem, issues);
     return hasProblem ? { required: issues } : null;
   }
 

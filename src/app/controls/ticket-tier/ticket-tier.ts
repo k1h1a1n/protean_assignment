@@ -1,7 +1,6 @@
-import { Component, computed, effect, inject, input, linkedSignal, signal, viewChildren } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, viewChildren } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NG_VALIDATORS, ControlValueAccessor, Validator, ValidationErrors } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { EMPTY_TICKET_TIER, NO_TICKET_TIER_ISSUES, NOTHING_LEFT, ticketTierIssues, TicketTierRow, TicketTierValue } from './ticket.model';
@@ -9,7 +8,8 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { Confirmation } from '../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
-  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule],
+  // MatInputModule also brings mat-form-field, mat-label and mat-error.
+  imports: [MatInputModule, MatIconModule, MatButtonModule],
   selector: 'app-ticket-tier',
   styleUrl: './ticket-tier.scss',
   templateUrl: './ticket-tier.html',
@@ -33,8 +33,6 @@ export class TicketTier implements ControlValueAccessor, Validator {
   private onChange: (value: TicketTierValue[]) => void = () => { };
   private onTouched: () => void = () => { };
 
-  // private readonly written = signal<TicketTierValue>(EMPTY_TICKET_TIER, { equal: () => false });
-  // private readonly value = linkedSignal(() => this.written());
   protected readonly rows = signal<TicketTierRow[]>([]);
   private nextId = 0;
   private readonly value = computed(() => this.rows().map(row => row.TicketTier))
@@ -42,7 +40,6 @@ export class TicketTier implements ControlValueAccessor, Validator {
 
   private readonly matInputs = viewChildren(MatInput);
   private readonly confirmation = inject(Confirmation);
-
 
   constructor() {
     effect(() => {
@@ -92,7 +89,6 @@ export class TicketTier implements ControlValueAccessor, Validator {
     );
     this.onChange(this.value());
   }
-
 
   // ---- Validator: the parent only learns "valid" or "invalid" from here ----
   validate(): ValidationErrors | null {
@@ -152,10 +148,6 @@ export class TicketTier implements ControlValueAccessor, Validator {
     return { id: this.nextId++, TicketTier: tier, initial: tier, left: NOTHING_LEFT };
   }
 
-  protected addRow(): void {
-    // this.rows.update((rows) => [...rows, this.newRow()]);
-  }
-
   private removeRow(row: TicketTierRow): void {
     this.rows.update((rows) => rows.filter((r) => r.id !== row.id));
     this.onChange(this.value());
@@ -182,7 +174,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
   }
 
   protected add(): void {
-    this.rows.update((rows) => [...rows, this.newRow({ tierName: null, price: null })]);
+    this.rows.update((rows) => [...rows, this.newRow(EMPTY_TICKET_TIER)]);
     this.onChange(this.value());
   }
 }

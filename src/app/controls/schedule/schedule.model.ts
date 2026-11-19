@@ -15,8 +15,6 @@ export const EMPTY_SCHEDULE: ScheduleValue = { date: null, startTime: null, dura
 
 export type ScheduleIssues = Record<keyof ScheduleValue, string | null>;
 
-export const NO_ISSUES: ScheduleIssues = { date: null, startTime: null, durationMinutes: null };
-
 /** None of the three inputs has been left yet. */
 export const NOTHING_LEFT: Record<keyof ScheduleValue, boolean> = {
   date: false,
@@ -72,7 +70,6 @@ export function dateToIsoDate(date: Date): string {
 /** 'HH:mm' -> a Date (today) at that time, or null if it isn't a real time. */
 export function timeToDate(value: string | null): Date | null {
     const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value ?? '');
-    console.log('timeToDate', value, match);
     if (!match) return null;
     const date = new Date();
     date.setHours(Number(match[1]), Number(match[2]), 0, 0);
