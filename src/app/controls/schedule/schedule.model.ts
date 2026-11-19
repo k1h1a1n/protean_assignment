@@ -83,3 +83,13 @@ export function timeToDate(value: string | null): Date | null {
 export function dateToTime(date: Date): string {
     return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+// ---- Starting value ----
+// Kept at the bottom: it calls dateToIsoDate, which needs `pad` above to exist already.
+
+/** The schedule a new event starts with: a week from today, 6 PM, for two hours. */
+export const DEFAULT_SCHEDULE: ScheduleValue = {
+    date: dateToIsoDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+    startTime: '18:00',
+    durationMinutes: 120,
+};

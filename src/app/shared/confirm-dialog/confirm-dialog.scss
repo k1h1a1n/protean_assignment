@@ -1,0 +1,14 @@
+@use '@angular/material' as mat;
+
+.message {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Red confirm button for actions that throw something away (delete, reset).
+.danger {
+  @include mat.button-overrides((
+    filled-container-color: var(--mat-sys-error),
+    filled-label-text-color: var(--mat-sys-on-error),
+  ));
+}

@@ -104,14 +104,14 @@ export class Schedule implements ControlValueAccessor, Validator {
     // Form -> inputs: each time the form writes a value, copy it into the three inputs.
     // Only then (no [value] binding): what the user is typing is never overwritten by our
     // own updates, and a reset always clears the inputs.
-    // afterRenderEffect({
-    //   write: () => {
-    //     const { date, startTime, durationMinutes } = this.written();
-    //     this.datepickerInput().value = isoDateToDate(date);
-    //     this.timepickerInput().value.set(timeToDate(startTime));
-    //     this.durationInput().nativeElement.value = durationMinutes?.toString() ?? '';
-    //   },
-    // });
+    afterRenderEffect({
+      write: () => {
+        const { date, startTime, durationMinutes } = this.written();
+        this.datepickerInput().value = isoDateToDate(date);
+        this.timepickerInput().value.set(timeToDate(startTime));
+        this.durationInput().nativeElement.value = durationMinutes?.toString() ?? '';
+      },
+    });
 
     // Material only re-checks a matcher by itself when the <input> has its own form control.
     // Ours don't, so ask every input to re-check whenever the shown messages change.

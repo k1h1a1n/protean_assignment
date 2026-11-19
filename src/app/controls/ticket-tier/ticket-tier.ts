@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, linkedSignal, signal, viewChildren } from '@angular/core';
+import { Component, computed, effect, inject, input, linkedSignal, signal, viewChildren } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NG_VALIDATORS, ControlValueAccessor, Validator, ValidationErrors } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { EMPTY_TICKET_TIER, NO_TICKET_TIER_ISSUES, NOTHING_LEFT, ticketTierIssues, TicketTierRow, TicketTierValue } from './ticket.model';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { Confirmation } from '../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule],
@@ -40,6 +41,7 @@ export class TicketTier implements ControlValueAccessor, Validator {
   private readonly issues = computed(() => ticketTierIssues(this.value()));
 
   private readonly matInputs = viewChildren(MatInput);
+  private readonly confirmation = inject(Confirmation);
 
 
   constructor() {
@@ -158,8 +160,24 @@ export class TicketTier implements ControlValueAccessor, Validator {
     this.onChange(this.value());
   }
 
-  protected remove(row: TicketTierRow): void {
-    this.removeRow(row)
+  /** Delete button: ask first, unless the row is still empty (nothing to lose). */
+  protected async remove(row: TicketTierRow): Promise<void> {
+    const { tierName, price } = row.TicketTier;
+    const name = tierName?.trim();
+    if (!name && price === null) {
+      this.removeRow(row);
+      return;
+    }
+
+    const confirmed = await this.confirmation.ask({
+      title: 'Delete ticket tier?',
+      message: name
+        ? `"${name}" will be removed from this event.`
+        : 'This ticket tier will be removed from this event.',
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    });
+    if (confirmed) this.removeRow(row);
   }
 
   protected add(): void {

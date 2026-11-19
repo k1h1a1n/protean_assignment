@@ -7,8 +7,8 @@ import {
     schema,
     validate,
 } from '@angular/forms/signals';
-import { ScheduleValue } from '../controls/schedule/schedule.model';
-import { TicketTierValue } from '../controls/ticket-tier/ticket.model';
+import { DEFAULT_SCHEDULE, EMPTY_SCHEDULE, ScheduleValue } from '../controls/schedule/schedule.model';
+import { DEFAULT_TICKET_TIERS, TicketTierValue } from '../controls/ticket-tier/ticket.model';
 
 
 const NAME_MAX_LENGTH = 80;
@@ -21,6 +21,23 @@ export interface EventSetupModel {
     schedule: ScheduleValue
     ticketTiers: TicketTierValue[];
 }
+
+/** What the form shows when the page opens. */
+export const INITIAL_EVENT: EventSetupModel = {
+    eventName: 'Initial Event',
+    eventDescription: 'Some Event',
+    schedule: DEFAULT_SCHEDULE,
+    ticketTiers: DEFAULT_TICKET_TIERS,
+};
+
+/** A blank form, ready to be filled in from scratch. Reset goes back to this. */
+export const EMPTY_EVENT: EventSetupModel = {
+    eventName: '',
+    eventDescription: '',
+    schedule: EMPTY_SCHEDULE,
+    // One blank row to fill in.
+    ticketTiers: [{ tierName: null, price: null }],
+};
 
 /** The validations for the event setup form. */
 export const validationSchema = schema<EventSetupModel>((path) => {
